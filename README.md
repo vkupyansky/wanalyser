@@ -1,59 +1,61 @@
+[![Русский](https://img.shields.io/badge/%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9-181717?style=for-the-badge)](README.ru.md)
+
 # WAnalyser
 
-Telegram-бот для поиска предметов Warframe Market и отслеживания цен. Показывает предложения продавцов в игре и помогает следить за выбранными предметами.
+A Telegram bot for searching Warframe Market items and tracking prices. It shows offers from sellers who are in game and helps you follow selected items.
 
-## Возможности
+## Features
 
-- Поиск по русскому названию, включая inline-поиск из других чатов.
-- Персональные подписки на изменение цены.
-- Профиль, premium и реферальный баланс.
-- Административные команды с проверкой роли.
+- Search by Russian item name, including inline search from other chats.
+- Personal subscriptions to price changes.
+- Profiles, premium access, and a referral balance.
+- Administrator commands with role checks.
 
-## Установка и запуск
+## Installation and startup
 
-Нужны Python 3.12–3.14, [uv](https://docs.astral.sh/uv/), PostgreSQL, Redis и публичный HTTPS-прокси. Точные версии среды и зависимостей указаны в [.python-version](.python-version) и [uv.lock](uv.lock).
+Requires Python 3.12–3.14, [uv](https://docs.astral.sh/uv/), PostgreSQL, Redis, and a public HTTPS proxy. Exact runtime and dependency versions are listed in [.python-version](.python-version) and [uv.lock](uv.lock).
 
 ```bash
 uv sync --frozen
 uv run --frozen python scripts/init_env.py
 ```
 
-Заполните созданный `.env` по [.env.example](.env.example). Его права должны оставаться `0600`. Все параметры обязательны:
+Fill in the generated `.env` using [.env.example](.env.example). Keep its permissions at `0600`. All settings are required:
 
-| Параметр           | Назначение                                            |
-| ------------------ | ----------------------------------------------------- |
-| `BOT_TOKEN`        | Токен бота от BotFather                               |
-| `BOT_NAME`         | Имя этого бота без `@`                                |
-| `PG_DSN`           | Строка подключения к выделенной PostgreSQL БД         |
-| `REDIS_URL`        | Адрес Redis для ограничения частоты запросов          |
-| `BASE_WEBHOOK_URL` | Публичный HTTPS origin без завершающего `/`           |
-| `WEBHOOK_SECRET`   | Внутренний секрет, однократно созданный `init_env.py` |
+| Setting            | Purpose                                                |
+| ------------------ | ------------------------------------------------------ |
+| `BOT_TOKEN`        | Bot token from BotFather                               |
+| `BOT_NAME`         | This bot's username without `@`                        |
+| `PG_DSN`           | Connection string for a dedicated PostgreSQL database   |
+| `REDIS_URL`        | Redis address for rate limiting                        |
+| `BASE_WEBHOOK_URL` | Public HTTPS origin without a trailing `/`              |
+| `WEBHOOK_SECRET`   | Internal secret generated once by `init_env.py`         |
 
-Используйте собственные учётные данные. Для удалённого PostgreSQL настройте проверку TLS-сертификата через параметры DSN. Создайте отдельную БД и роль, затем подготовьте таблицы и запустите бот:
+Use your own credentials. For remote PostgreSQL, enable TLS certificate verification through the DSN parameters. Create a dedicated database and role, then prepare the tables and start the bot:
 
 ```bash
 uv run --frozen --env-file .env python setup.py
 uv run --frozen --env-file .env python main.py
 ```
 
-Сервер слушает `127.0.0.1:8080`. HTTPS-прокси должен передавать `/webhook` на этот адрес без удаления заголовка `X-Telegram-Bot-Api-Secret-Token`.
+The server listens on `127.0.0.1:8080`. The HTTPS proxy must forward `/webhook` to this address without removing the `X-Telegram-Bot-Api-Secret-Token` header.
 
-## Использование
+## Usage
 
-Начните с `/start`. Для поиска из других чатов включите inline mode в BotFather. Администратор назначается владельцем БД через поле `users.admin`; роль проверяется повторно при административных действиях.
+Start with `/start`. Enable inline mode in BotFather to search from other chats. The database owner assigns administrators through the `users.admin` field; the role is checked again for administrative actions.
 
-PostgreSQL хранит Telegram ID, имена, подписки и историю premium, Redis хранит счётчики запросов. `dictionary.json` содержит каталог игровых предметов. Сообщения и уведомления проходят через Telegram, цены запрашиваются у Warframe Market. `.env`, дампы и списки пользователей в Git не входят.
+PostgreSQL stores Telegram IDs, names, subscriptions, and premium history; Redis stores request counters. `dictionary.json` contains the game item catalog. Messages and notifications go through Telegram, and prices are requested from Warframe Market. `.env`, database dumps, and user lists are kept out of Git.
 
-## Проверки
+## Checks
 
 ```bash
 uv run --frozen python scripts/check.py
 ```
 
-Команда проверяет синтаксис, критические ошибки Ruff, изолированные регрессионные тесты `pytest -W error` и уязвимости зависимостей. Она не отправляет сообщения и не подключается к рабочей БД.
+The command checks syntax, critical Ruff errors, isolated regression tests with `pytest -W error`, and dependency vulnerabilities. It does not send messages or connect to the production database.
 
-## Ограничения
+## Limitations
 
-Топы отключены в интерфейсе. Premium оформляется вручную через Boosty, автоматического платёжного шлюза нет. Черновики и память отправленных уведомлений теряются при перезапуске.
+Rankings are disabled in the interface. Premium access is arranged manually through Boosty; there is no automatic payment gateway. Drafts and the record of sent notifications are lost on restart.
 
-Актуальность внешних API и полный цикл Telegram/PostgreSQL/Redis требуют отдельной проверки. Подробности готовности и оставшиеся ограничения: [STATUS.md](STATUS.md).
+External API compatibility and the full Telegram/PostgreSQL/Redis workflow require separate verification. See [STATUS.md](STATUS.md) (in Russian) for readiness details and remaining limitations.
